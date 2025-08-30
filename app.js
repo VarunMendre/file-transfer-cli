@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { error } from "console";
 import fs from "fs/promises";
 import path from "path";
@@ -19,9 +21,7 @@ switch (currCase) {
     try {
       await copyFile(sourceFile, destinationFile);
     } catch (error) {
-      console.error(
-        "Something might wrong , Copying failed:"
-      ,error.message);
+      console.error("Something might wrong , Copying failed:", error.message);
     }
     break;
 
@@ -31,16 +31,15 @@ switch (currCase) {
       await fs.unlink(sourceFile);
       console.log("File Moved!");
     } catch (error) {
-      console.error(
-        "Something might wrong , Move failed:"
-      ,error.message);
+      console.error("Something might wrong , Move failed:", error.message);
     }
     break;
 
   default:
     console.error(
-      "Usage: node app.js <copy|move> <sourceFile> <destinationFile>"
-    ,error.message);
+      "Usage: node app.js <copy|move> <sourceFile> <destinationFile>",
+      error.message
+    );
     break;
 }
 

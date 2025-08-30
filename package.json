@@ -2,5 +2,26 @@
   "type": "module",
   "devDependencies": {
     "@types/node": "^24.3.0"
-  }
+  },
+  "name": "file-transfer-project-cli",
+  "version": "1.0.0",
+  "description": "🚧 Project Status: In Progress 🚧",
+  "main": "app.js",
+  "dependencies": {
+    "undici-types": "^7.10.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VarunMendre/file-transfer-cli.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VarunMendre/file-transfer-cli/issues"
+  },
+  "homepage": "https://github.com/VarunMendre/file-transfer-cli#readme"
 }
