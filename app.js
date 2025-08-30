@@ -1,3 +1,4 @@
+#!usr/bin/node
 
 import { error } from "console";
 import fs from "fs/promises";
