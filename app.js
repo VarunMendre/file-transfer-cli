@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
-import { error } from "console";
 import fs from "fs/promises";
+import { createReadStream, createWriteStream } from "fs";
 import path from "path";
+import readline from "readline";
+
 const currCase = process.argv[2];
 const sourceFile = process.argv[3];
 const destinationFile = process.argv[4];
 
 if (!sourceFile || !destinationFile) {
-  console.error("Usage: node app.js <sourceFile> <destinationFile>");
-  console.log(process.argv);
+  console.error("Usage: node app.js <copy|move> <sourceFile> <destinationFile>");
   process.exit(1);
 }
 
@@ -19,60 +20,57 @@ const destinationPath = path.resolve(destinationFile);
 switch (currCase) {
   case "copy":
     try {
-      await copyFile(sourceFile, destinationFile);
+      await copyFile(sourcePath, destinationPath);
     } catch (error) {
-      console.error("Something might wrong , Copying failed:", error.message);
+      console.error("Something went wrong, Copying failed:", error.message);
     }
     break;
 
   case "move":
     try {
-      await copyFile(sourceFile, destinationFile);
-      await fs.unlink(sourceFile);
+      await copyFile(sourcePath, destinationPath);
+      await fs.unlink(sourcePath);
       console.log("File Moved!");
     } catch (error) {
-      console.error("Something might wrong , Move failed:", error.message);
+      console.error("Something went wrong, Move failed:", error.message);
     }
     break;
 
   default:
-    console.error(
-      "Usage: node app.js <copy|move> <sourceFile> <destinationFile>",
-      error.message
-    );
+    console.error("Usage: node app.js <copy|move> <sourceFile> <destinationFile>");
     break;
 }
 
 async function copyFile(src, dest) {
   try {
-    const readHandle = await fs.open(src, "r");
-    const writeHandle = await fs.open(dest, "w");
+    const stats = await fs.stat(src);
+    const totalSize = stats.size;
+    let transferred = 0;
 
-    const readStream = readHandle.createReadStream();
-    const writeStream = writeHandle.createWriteStream();
+    const readStream = createReadStream(src);
+    const writeStream = createWriteStream(dest);
 
-    readStream.on("error", (err) => console.log("Read error:", err.message));
-    writeStream.on("error", (err) => console.log("Read error:", err.message));
+    readStream.on("data", (chunk) => {
+      transferred += chunk.length;
+      const percent = ((transferred / totalSize) * 100).toFixed(2);
 
-    readStream.pipe(writeStream);
+      const barLength = 30;
+      const filledLength = Math.round((barLength * transferred) / totalSize);
+      const bar = "█".repeat(filledLength) + "-".repeat(barLength - filledLength);
+
+      readline.cursorTo(process.stdout, 0);
+      process.stdout.write(`Copying: [${bar}] ${percent}%`);
+    });
 
     writeStream.on("finish", () => {
-      console.log("File Copied");
-      readStream.close();
-      writeStream.close();
+      console.log("\n✅ File Copied Successfully!");
     });
 
-    await readHandle.close();
-    await writeHandle.close();
+    readStream.on("error", (err) => console.error("Read error:", err.message));
+    writeStream.on("error", (err) => console.error("Write error:", err.message));
 
-    readStream.on("error", (error) => {
-      console.log("Read error:", error.message);
-    });
-
-    writeStream.on("error", (error) => {
-      console.log("Write error:", error.message);
-    });
+    readStream.pipe(writeStream);
   } catch (err) {
-    console.log("Error:", err.message);
+    console.error("Error:", err.message);
   }
 }
